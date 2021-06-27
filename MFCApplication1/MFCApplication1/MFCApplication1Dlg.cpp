@@ -14,6 +14,9 @@
 #include <map>
 #include <vector>
 
+// 프로세스를 담을 Map 자료구조 
+std::map<DWORD, TCHAR*> ProcessList;
+std::map<DWORD, TCHAR*>::iterator ProcessList_iter;
 
 
 #ifdef _DEBUG
@@ -35,7 +38,10 @@ void CMFCApplication1Dlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDOK, cbEnter);
 	DDX_Control(pDX, IDCANCEL, cbCancel);
-	DDX_Control(pDX, IDC_LIST2, clProcessList);
+	DDX_Control(pDX, IDC_LIST1, m_ProcessListBox);
+	DDX_Control(pDX, IDC_BUTTON1, m_SelectKillButton);
+	DDX_Control(pDX, IDC_EDIT2, m_InputPID);
+	DDX_Control(pDX, IDC_BUTTON2, m_PIDKill);
 }
 
 BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
@@ -43,7 +49,10 @@ BEGIN_MESSAGE_MAP(CMFCApplication1Dlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDCANCEL, &CMFCApplication1Dlg::OnBnClickedCancel)
 	ON_BN_CLICKED(IDOK, &CMFCApplication1Dlg::OnBnClickedOk)
-	ON_LBN_SELCHANGE(IDC_LIST2, &CMFCApplication1Dlg::OnLbnSelchangeList2)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &CMFCApplication1Dlg::OnLvnItemchangedList1)
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFCApplication1Dlg::OnBnClickedButton1)
+	ON_EN_CHANGE(IDC_EDIT2, &CMFCApplication1Dlg::OnEnChangeEdit2)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFCApplication1Dlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -60,14 +69,17 @@ BOOL CMFCApplication1Dlg::OnInitDialog()
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
-	std::map<DWORD, TCHAR*> ProcessList;
-	// Process List Up Function
-	ProcessListUP(ProcessList);
-	char temp[MAX_PATH] = { 0, };
-	sprintf_s(temp, sizeof(temp), "%d", ProcessList.size());
-	clProcessList.AddString(temp);
+	// List Control Box Init 	
+	m_ProcessListBox.DeleteAllItems();
+	m_ProcessListBox.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
+	m_ProcessListBox.InsertColumn(0, _T("Number"), LVCFMT_LEFT, 80, -1);
+	m_ProcessListBox.InsertColumn(1, _T("Process Name"), LVCFMT_LEFT, 240, -1);
+	m_ProcessListBox.InsertColumn(2, _T("Process ID"), LVCFMT_LEFT, 243, -1);
 
+	// List Control Box List Up Function 
+	ProcessListUP(ProcessList);
 	
+
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -110,10 +122,8 @@ HCURSOR CMFCApplication1Dlg::OnQueryDragIcon()
 
 void CMFCApplication1Dlg::OnBnClickedCancel()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	// 취소 버튼을 누르면 나오는 메시지 
 	CDialogEx::OnCancel();
-
-	// 확인 버튼을 누르면 나오는 메시지 
 	MessageBox(_T("취소버튼을 누르셨습니다."));
 
 }
@@ -121,16 +131,138 @@ void CMFCApplication1Dlg::OnBnClickedCancel()
 
 void CMFCApplication1Dlg::OnBnClickedOk()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	// 확인 버튼을 누르면 나오는 메시지 
 	CDialogEx::OnOK();
 	MessageBox(_T("확인버튼을 누르셨습니다."));
 }
 
+void CMFCApplication1Dlg::OnLvnItemchangedList1(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	// Seongtaek => This code Do not AnyThing
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	*pResult = 0;
+}
 
-void CMFCApplication1Dlg::OnLbnSelchangeList2()
+
+void CMFCApplication1Dlg::OnBnClickedButton1()
+{
+	// PID 작업종료 Function 
+	HANDLE  hProcess		  = NULL;
+	CString ProcessName		  = NULL;
+	CString ProcessID		  = NULL;
+	DWORD   dwProcessID		  = 0;
+	DWORD   dwExitCode		  = 0;
+	TCHAR  tszText[MAX_PATH] = { 0, };
+	
+	// 목록에서 선택된 값 찾기 
+	for (int i = 0; i < m_ProcessListBox.GetItemCount(); i++)
+	{
+		if (LVIS_SELECTED == m_ProcessListBox.GetItemState(i, LVIS_SELECTED))
+		{
+			ProcessName = m_ProcessListBox.GetItemText(i, 1);
+			ProcessID   = m_ProcessListBox.GetItemText(i, 2);
+			dwProcessID = atol((char*)(LPCTSTR)ProcessID);
+			break;
+		}
+	}
+
+	// 프로세스 죽이기 
+	if (ProcessList.find(dwProcessID) != ProcessList.end())
+	{
+		if (NULL == (hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessID)))
+		{
+			MessageBox("Process is Null");
+			return;
+		}
+		if (0 == GetExitCodeProcess(hProcess, &dwExitCode))
+		{
+			MessageBox("Fail Get Exit Code");
+			return;
+		}
+		if (0 == (TerminateProcess(hProcess, dwExitCode)))
+		{
+			MessageBox("Fail Terminate Process");
+			return;
+		}
+		
+		// 종료 성공시 보이는 메시지 
+		sprintf_s(tszText,sizeof(tszText), "%s가 종료되었습니다.", ProcessName);
+		MessageBox(tszText,"종료",MB_OK);
+
+		// Map Data 다시 읽어 들이기 
+		ProcessList.clear();
+		ProcessListUP(ProcessList);
+
+		// 화면 다시 그리기 
+		Invalidate(FALSE);
+	}
+	else
+	{
+		MessageBox(_T("Map Data 와 동기화 오류가 있습니다."));
+	}
+}
+
+
+void CMFCApplication1Dlg::OnEnChangeEdit2()
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// CDialogEx::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+}
+
+
+void CMFCApplication1Dlg::OnBnClickedButton2()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	// Input PID Kill Function 
 
+	HANDLE  hProcess = NULL;
+	CStringA ProcessName = NULL;
+	CString ProcessID = NULL;
+	DWORD   dwProcessID = 0;
+	DWORD   dwExitCode = 0;
+	TCHAR   tszText[MAX_PATH] = { 0, };
+
+	m_InputPID.GetWindowText(ProcessID);
+	dwProcessID = atol((char*)(LPCTSTR)ProcessID);
+
+	// 프로세스 죽이기
+	for (ProcessList_iter = ProcessList.begin(); ProcessList_iter != ProcessList.end(); ProcessList_iter++)
+	{
+		if (ProcessList_iter->first == dwProcessID)
+		{
+			ProcessName = CStringA(ProcessList_iter->second);
+			
+			if (NULL == (hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessID)))
+			{
+				MessageBox("Process is Null");
+				return;
+			}
+			if (0 == GetExitCodeProcess(hProcess, &dwExitCode))
+			{
+				MessageBox("Fail Get Exit Code");
+				return;
+			}
+			if (0 == (TerminateProcess(hProcess, dwExitCode)))
+			{
+				MessageBox("Fail Terminate Process");
+				return;
+			}
+
+			// 종료 성공시 보이는 메시지 
+			sprintf_s(tszText, sizeof(tszText), "%s가 종료되었습니다.", ProcessName);
+			MessageBox(tszText, "종료", MB_OK);
+			break;
+		}
+	}
+
+	// Map Data 다시 읽어 들이기 
+	ProcessList.clear();
+	ProcessListUP(ProcessList);
+
+	// 화면 다시 그리기 
+	Invalidate(FALSE);
 }
 
 void CMFCApplication1Dlg::ProcessListUP(std::map<DWORD, TCHAR*> &temp)
@@ -138,6 +270,8 @@ void CMFCApplication1Dlg::ProcessListUP(std::map<DWORD, TCHAR*> &temp)
 	PROCESSENTRY32 ProcessEntry32 = { 0, };
 	ProcessEntry32.dwSize		  = sizeof(PROCESSENTRY32);
 	BOOL bProcessFound			  = FALSE;
+	CString CListFormat			  = NULL;
+	int nidx					  = 0;
 
 	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if (INVALID_HANDLE_VALUE == hSnapshot) {
@@ -148,14 +282,21 @@ void CMFCApplication1Dlg::ProcessListUP(std::map<DWORD, TCHAR*> &temp)
 	while (bProcessFound)
 	{
 		temp.insert(std::make_pair(ProcessEntry32.th32ProcessID, ProcessEntry32.szExeFile));
-		//clProcessList.AddString(ProcessEntry32.szExeFile);
-		//clProcessList.AddString(LPTSTR(ProcessEntry32.cntThreads));
+		
+		// Number Column
+		CListFormat.Format(_T("%d"), nidx);
+		m_ProcessListBox.InsertItem(nidx, CListFormat);
+		
+		// Process Name Column
+		m_ProcessListBox.SetItem(nidx, INDEX_PROCESSNAME_COLUMN, LVIF_TEXT, ProcessEntry32.szExeFile, 0, 0, 0, NULL);
+
+		// Process ID Column
+		CListFormat.Format(_T("%d"), ProcessEntry32.th32ProcessID);
+		m_ProcessListBox.SetItem(nidx, INDEX_PROCESSID_COLUMN, LVIF_TEXT, CListFormat, 0, 0, 0, NULL);
+		
+		// Index ++ 
+		nidx++;
 		bProcessFound = Process32Next(hSnapshot, &ProcessEntry32);
 	}
-	CloseHandle(hSnapshot);
-	// End
-	//clProcessList.AddString(LPCTSTR(temp.size()));
-	
+	CloseHandle(hSnapshot);	
 }
-// Read 
-
