@@ -1,0 +1,8 @@
+﻿  pch.cpp
+  dllmain.cpp
+     D:\seongtaek_TestCode\05_Global_Hooking_Control\x64\Release\05_Global_Hooking_Control.lib 라이브러리 및 D:\seongtaek_TestCode\05_Global_Hooking_Control\x64\Release\05_Global_Hooking_Control.exp 개체를 생성하고 있습니다.
+LINK : warning LNK4098: 'LIBCMT' defaultlib가 다른 라이브러리와 충돌합니다. /NODEFAULTLIB:library를 사용하십시오.
+  코드를 생성하고 있습니다.
+  All 55 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  코드를 생성했습니다.
+  05_Global_Hooking_Control.vcxproj -> D:\seongtaek_TestCode\05_Global_Hooking_Control\x64\Release\05_Global_Hooking_Control.dll
