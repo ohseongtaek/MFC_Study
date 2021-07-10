@@ -1,4 +1,4 @@
 ﻿  MFCApplication1Dlg.cpp
-C:\Users\Home\source\repos\ohseongtaek\MFC_Study\MFCApplication1\MFCApplication1\MFCApplication1Dlg.cpp(189,38): warning C4477: 'sprintf_s' : 서식 문자열 '%s'에 'char *' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'CString'입니다.
-C:\Users\Home\source\repos\ohseongtaek\MFC_Study\MFCApplication1\MFCApplication1\MFCApplication1Dlg.cpp(256,40): warning C4477: 'sprintf_s' : 서식 문자열 '%s'에 'char *' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'CString'입니다.
-  MFCApplication1.vcxproj -> C:\Users\Home\Source\Repos\ohseongtaek\MFC_Study\MFCApplication1\Debug\MFCApplication1.exe
+C:\Users\Home\Desktop\Git_Repositories\MFC_Study\01_ProcessKill\MFCApplication1\MFCApplication1Dlg.cpp(189,38): warning C4477: 'sprintf_s' : 서식 문자열 '%s'에 'char *' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'CString'입니다.
+C:\Users\Home\Desktop\Git_Repositories\MFC_Study\01_ProcessKill\MFCApplication1\MFCApplication1Dlg.cpp(254,40): warning C4477: 'sprintf_s' : 서식 문자열 '%s'에 'char *' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'CStringA'입니다.
+  MFCApplication1.vcxproj -> C:\Users\Home\Desktop\Git_Repositories\MFC_Study\01_ProcessKill\Debug\MFCApplication1.exe

@@ -194,7 +194,7 @@ void CMFCApplication1Dlg::OnBnClickedButton1()
 		ProcessListUP(ProcessList);
 
 		// 화면 다시 그리기 
-		Invalidate(FALSE);
+		//Invalidate(FALSE);
 	}
 	else
 	{
@@ -262,7 +262,7 @@ void CMFCApplication1Dlg::OnBnClickedButton2()
 	ProcessListUP(ProcessList);
 
 	// 화면 다시 그리기 
-	Invalidate(FALSE);
+	//Invalidate(FALSE);
 }
 
 void CMFCApplication1Dlg::ProcessListUP(std::map<DWORD, TCHAR*> &temp)
@@ -272,6 +272,8 @@ void CMFCApplication1Dlg::ProcessListUP(std::map<DWORD, TCHAR*> &temp)
 	BOOL bProcessFound			  = FALSE;
 	CString CListFormat			  = NULL;
 	int nidx					  = 0;
+	
+	m_ProcessListBox.DeleteAllItems();
 
 	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if (INVALID_HANDLE_VALUE == hSnapshot) {
