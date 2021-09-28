@@ -1,4 +1,0 @@
-﻿  06_Computer_Usage_Time_LimitDlg.cpp
-C:\Users\Home\Desktop\Git_Repositories\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_LimitDlg.cpp(59,47): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Home\Desktop\Git_Repositories\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_LimitDlg.cpp(60,47): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  06_Computer_Usage_Time_Limit.vcxproj -> C:\Users\Home\Desktop\Git_Repositories\MFC_Study\06_Computer_Usage_Time_Limit\Debug\06_Computer_Usage_Time_Limit.exe

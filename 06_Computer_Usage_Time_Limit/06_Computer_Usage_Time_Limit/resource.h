@@ -7,6 +7,8 @@
 #define IDR_MENU1                       130
 #define IDC_MFCSHELLLIST1               1002
 #define IDC_RICHEDITGUIDEMESSAGE        1004
+#define IDC_EDIT1                       1005
+#define IDC_EDIT2                       1006
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -19,7 +21,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1005
+#define _APS_NEXT_CONTROL_VALUE         1007
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

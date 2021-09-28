@@ -3,10 +3,17 @@
 #include "06_Computer_Usage_Time_Limit.h"
 #include "06_Computer_Usage_Time_LimitDlg.h"
 #include "afxdialogex.h"
+#include "md5.h"
+#include <strsafe.h>
+#include <string>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+// User Function 
+std::string strToMD5(CString pw);
+// End
 
 
 CMy06ComputerUsageTimeLimitDlg::CMy06ComputerUsageTimeLimitDlg(CWnd* pParent /*=nullptr*/)
@@ -19,6 +26,8 @@ void CMy06ComputerUsageTimeLimitDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_RICHEDITGUIDEMESSAGE, m_Rich_GuideMessage);
+	DDX_Control(pDX, IDC_EDIT1, m_Edit_Time);
+	DDX_Control(pDX, IDC_EDIT2, m_Edit_PW);
 }
 
 BEGIN_MESSAGE_MAP(CMy06ComputerUsageTimeLimitDlg, CDialogEx)
@@ -41,7 +50,7 @@ BOOL CMy06ComputerUsageTimeLimitDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);		// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, TRUE);		// 작은 아이콘을 설정합니다.
 
-	SetWindowText("Computer Time Limit made by seongtaekoh");
+	SetWindowText(_T("Computer Time Limit made by seongtaekoh"));
 
 	// Tray 추가 Start 
 	NOTIFYICONDATA nid;
@@ -62,11 +71,14 @@ BOOL CMy06ComputerUsageTimeLimitDlg::OnInitDialog()
 	// Dialog 중앙 배치 End
 
 	// 안내 메시지 출력 Start
-	GuideMsg("컴퓨터 이용시간 초과 시 바로 종료됩니다.\r\n", RGB(0, 0, 0));
-	GuideMsg("문의: post4204@naver.com\r\n", RGB(0, 0, 255));
+	//m_Rich_GuideMessage.MoveWindow(12, 270, 400, 65, FALSE);
+	GuideMsg(_T("1.시간입력: 사용시간은 분 단위 입니다. ex)60\r\n"), RGB(0, 0, 0));
+	GuideMsg(_T("2.패스워드: 사용중에 프로그램을 종료하기 위함 입니다.\r\n"), RGB(0, 0, 0));
+	GuideMsg(_T("※컴퓨터 이용시간 초과 시 바로 종료됩니다.\r\n"), RGB(255, 0, 0));
+	GuideMsg(_T("문의: post4204@naver.com \r\n"), RGB(0, 0, 255));
 	// 안내 메시지 출력 End 
 
-	// seongtaekoh 각종 버튼 구현 
+	// seongtaekoh 각종 버튼 입력 예제 구현 
 
 	ShowWindow(SW_SHOW);
 
@@ -105,6 +117,7 @@ HCURSOR CMy06ComputerUsageTimeLimitDlg::OnQueryDragIcon()
 
 void CMy06ComputerUsageTimeLimitDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
+	//Dialog x button 누를 경우 
 	if (nID == SC_CLOSE)
 	{
 		AfxGetApp()->m_pMainWnd->ShowWindow(SW_HIDE);
@@ -138,6 +151,7 @@ LRESULT CMy06ComputerUsageTimeLimitDlg::OnTrayAction(WPARAM wParam, LPARAM lPara
 void CMy06ComputerUsageTimeLimitDlg::OnShellClose()
 {
 	// seongtaekoh 아무나 종료하지 못하도록 설정 해야함 //
+
 	NOTIFYICONDATA nid;
 	ZeroMemory(&nid, sizeof(nid));
 	nid.cbSize = sizeof(nid);
@@ -147,8 +161,7 @@ void CMy06ComputerUsageTimeLimitDlg::OnShellClose()
 	BOOL bRet = ::Shell_NotifyIcon(NIM_DELETE, &nid);
 	if (!bRet)
 	{
-		// seongtaekoh log 로 변경하기 
-		::AfxMessageBox(_T("Tray Remove Fail"));
+		MessageBox(_T("종료 실패 \r\n 다시 종료해주세요"), _T("Error"), MB_ICONERROR);
 	}
 	::SendMessage(this->m_hWnd, WM_CLOSE, NULL, NULL);
 }
@@ -156,12 +169,6 @@ void CMy06ComputerUsageTimeLimitDlg::OnShellClose()
 void CMy06ComputerUsageTimeLimitDlg::OnShellOpen()
 {
 	AfxGetApp()->m_pMainWnd->ShowWindow(SW_SHOW);
-}
-
-void CMy06ComputerUsageTimeLimitDlg::OnBnClickedOk()
-{
-	//seongtaekoh 하이드 전에 실제 저장된 정보를 저장해서 ini파일에 저장하기 
-	AfxGetApp()->m_pMainWnd->ShowWindow(SW_HIDE);
 }
 
 void CMy06ComputerUsageTimeLimitDlg::GuideMsg(LPCTSTR strText, COLORREF TextColor)
@@ -183,4 +190,83 @@ void CMy06ComputerUsageTimeLimitDlg::GuideMsg(LPCTSTR strText, COLORREF TextColo
 
 	m_Rich_GuideMessage.SetSelectionCharFormat(cf);
 	m_Rich_GuideMessage.ReplaceSel(strText);
+}
+
+void CMy06ComputerUsageTimeLimitDlg::OnBnClickedOk()
+{
+	CString ctime;
+	CString pw;
+	std::string strMD5pw;
+	INT nHour;
+	INT nMin;
+
+	//시간값 얻기 
+	m_Edit_Time.GetWindowText(ctime);
+	INT nInputTime = _ttoi(ctime);
+
+	//비밀번호 얻기 
+	m_Edit_PW.GetWindowText(pw);
+
+	// 값 확인하기 
+	if (ctime.IsEmpty() || pw.IsEmpty())
+	{
+		//::AfxMessageBox(_T("시간과 패스워드를 입력해주세요"));
+		MessageBox(_T("시간과 패스워드를 입력해주세요"), _T("Info"), MB_ICONASTERISK);
+		return;
+	}
+
+	// 패스워드 MD5변환 하기 
+	strMD5pw = strToMD5(pw);
+	m_cPassWord = strMD5pw.c_str();
+
+	// 시간값 계산하기 
+	CString cstrTime = CTime::GetCurrentTime().Format("%H%M");
+	INT nTempMin  = _ttoi(cstrTime.Right(2));
+	INT nTempHour = _ttoi(cstrTime.Left(2));
+
+	INT nTempTotalMin = nTempMin + nInputTime;
+	INT nUpHour = nTempTotalMin / 60;
+
+	if (nTempHour + nUpHour >= 24)
+	{
+		nHour = nTempHour + nUpHour;
+		nHour = nHour - 24;
+		nMin = nTempTotalMin - (nUpHour * 60);
+	}
+	else
+	{
+		nHour = nTempHour + nUpHour;
+		nMin = nTempTotalMin - (nUpHour * 60);
+	}
+
+	char szToStr[MAX_PATH] = { 0, };
+	StringCbPrintfA(szToStr, sizeof(szToStr), "%d시 %d분", nHour, nMin);
+	std::string strTime(szToStr);
+	m_cTime = strTime.c_str();
+
+	// 새로운 다이얼로그 생성 해야함 (시간계산해주는것)
+
+	AfxGetApp()->m_pMainWnd->ShowWindow(SW_HIDE);
+}
+
+std::string strToMD5(CString pw)
+{
+	CT2CA convertedString(pw);
+	std::string strMD5 = std::string(convertedString);
+
+	md5_state_t state;
+	md5_byte_t digest[16];
+	char hex_output[16 * 2 + 1];
+
+	md5_init(&state);
+	md5_append(&state, (const md5_byte_t*)strMD5.c_str(), strMD5.length());
+	md5_finish(&state, digest);
+
+	for (int i = 0; i < 16; i++)
+	{
+		sprintf(hex_output + i * 2, "%02x", digest[i]);
+	}
+	TRACE(hex_output);
+
+	return hex_output;
 }

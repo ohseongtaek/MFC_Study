@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+#include "md5.h"
 #define WM_TRAY_NOTIFYCATION WM_APP + 10
 
 class CMy06ComputerUsageTimeLimitDlg : public CDialogEx
@@ -24,10 +24,19 @@ protected:
 
 public:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
+	afx_msg void OnBnClickedOk();
+
 	LRESULT OnTrayAction(WPARAM wParam, LPARAM lParam);
 	void OnShellClose();
 	void OnShellOpen();
 	void GuideMsg(LPCTSTR strText, COLORREF TextColor);
-	afx_msg void OnBnClickedOk();
+	
 	CRichEditCtrl m_Rich_GuideMessage;
+	CEdit m_Edit_Time;
+	CEdit m_Edit_PW;
+
+	// Point Variable
+	CString m_cPassWord;
+	CString m_cTime;
+
 };
