@@ -76,3 +76,24 @@ BOOL CMy06ComputerUsageTimeLimitApp::InitInstance()
 
 	return FALSE;
 }
+
+std::string CMy06ComputerUsageTimeLimitApp::strToMD5(CString pw)
+{
+	CT2CA convertedString(pw);
+	std::string strMD5 = std::string(convertedString);
+
+	md5_state_t state;
+	md5_byte_t digest[16];
+	char hex_output[16 * 2 + 1];
+
+	md5_init(&state);
+	md5_append(&state, (const md5_byte_t*)strMD5.c_str(), strMD5.length());
+	md5_finish(&state, digest);
+
+	for (int i = 0; i < 16; i++)
+	{
+		sprintf(hex_output + i * 2, "%02x", digest[i]);
+	}
+
+	return hex_output;
+}

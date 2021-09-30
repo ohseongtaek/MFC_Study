@@ -5,7 +5,7 @@
 #endif
 
 #include "resource.h"		// 주 기호입니다.
-
+#include <string>
 
 class CMy06ComputerUsageTimeLimitApp : public CWinApp
 {
@@ -14,10 +14,12 @@ public:
 
 public:
 	virtual BOOL InitInstance();
+	CString m_cstrInputPASS;
+	HWND m_hWndMain;
+	std::string strToMD5(CString pw);
+
 
 	DECLARE_MESSAGE_MAP()
-	afx_msg void OnShellClose();
-	afx_msg void OnShellOpen();
 };
 
 extern CMy06ComputerUsageTimeLimitApp theApp;

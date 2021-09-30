@@ -50,6 +50,8 @@ BOOL CMy06ComputerUsageTimeLimitDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);		// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, TRUE);		// 작은 아이콘을 설정합니다.
 
+
+	//seongtaek10.oh 시간 다이얼로그만 구현하면 끝 
 	SetWindowText(_T("Computer Time Limit made by seongtaekoh"));
 
 	// Tray 추가 Start 
@@ -78,7 +80,15 @@ BOOL CMy06ComputerUsageTimeLimitDlg::OnInitDialog()
 	GuideMsg(_T("문의: post4204@naver.com \r\n"), RGB(0, 0, 255));
 	// 안내 메시지 출력 End 
 
-	// seongtaekoh 각종 버튼 입력 예제 구현 
+
+	theApp.m_hWndMain = GetSafeHwnd();
+
+	//BOOL bRet = ::Shell_NotifyIcon(NIM_DELETE, &nid);
+	//if (!bRet)
+	//{
+	//	MessageBox(_T("종료 실패 \r\n 다시 종료해주세요"), _T("Error"), MB_ICONERROR);
+	//}
+	//::SendMessage(this->m_hWnd, WM_CLOSE, NULL, NULL);
 
 	ShowWindow(SW_SHOW);
 
@@ -150,20 +160,9 @@ LRESULT CMy06ComputerUsageTimeLimitDlg::OnTrayAction(WPARAM wParam, LPARAM lPara
 
 void CMy06ComputerUsageTimeLimitDlg::OnShellClose()
 {
-	// seongtaekoh 아무나 종료하지 못하도록 설정 해야함 //
-
-	NOTIFYICONDATA nid;
-	ZeroMemory(&nid, sizeof(nid));
-	nid.cbSize = sizeof(nid);
-	nid.uID = 0;
-	nid.hWnd = GetSafeHwnd();
-
-	BOOL bRet = ::Shell_NotifyIcon(NIM_DELETE, &nid);
-	if (!bRet)
-	{
-		MessageBox(_T("종료 실패 \r\n 다시 종료해주세요"), _T("Error"), MB_ICONERROR);
-	}
-	::SendMessage(this->m_hWnd, WM_CLOSE, NULL, NULL);
+	m_CloseCheckDlg = new CloseCheckDlg;
+	m_CloseCheckDlg->Create(IDD_DIALOG_CLOSE, this);
+	m_CloseCheckDlg->ShowWindow(SW_SHOW);
 }
 
 void CMy06ComputerUsageTimeLimitDlg::OnShellOpen()
@@ -216,8 +215,8 @@ void CMy06ComputerUsageTimeLimitDlg::OnBnClickedOk()
 	}
 
 	// 패스워드 MD5변환 하기 
-	strMD5pw = strToMD5(pw);
-	m_cPassWord = strMD5pw.c_str();
+	strMD5pw = theApp.strToMD5(pw);
+	theApp.m_cstrInputPASS = strMD5pw.c_str();
 
 	// 시간값 계산하기 
 	CString cstrTime = CTime::GetCurrentTime().Format("%H%M");
@@ -247,26 +246,4 @@ void CMy06ComputerUsageTimeLimitDlg::OnBnClickedOk()
 	// 새로운 다이얼로그 생성 해야함 (시간계산해주는것)
 
 	AfxGetApp()->m_pMainWnd->ShowWindow(SW_HIDE);
-}
-
-std::string strToMD5(CString pw)
-{
-	CT2CA convertedString(pw);
-	std::string strMD5 = std::string(convertedString);
-
-	md5_state_t state;
-	md5_byte_t digest[16];
-	char hex_output[16 * 2 + 1];
-
-	md5_init(&state);
-	md5_append(&state, (const md5_byte_t*)strMD5.c_str(), strMD5.length());
-	md5_finish(&state, digest);
-
-	for (int i = 0; i < 16; i++)
-	{
-		sprintf(hex_output + i * 2, "%02x", digest[i]);
-	}
-	TRACE(hex_output);
-
-	return hex_output;
 }

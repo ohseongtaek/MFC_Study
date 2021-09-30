@@ -1,11 +1,13 @@
 ﻿#pragma once
 #include "md5.h"
+#include "CloseCheckDlg.h"
 #define WM_TRAY_NOTIFYCATION WM_APP + 10
 
 class CMy06ComputerUsageTimeLimitDlg : public CDialogEx
 {
 public:
 	CMy06ComputerUsageTimeLimitDlg(CWnd* pParent = nullptr);	
+	CloseCheckDlg* m_CloseCheckDlg;
 
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_MY06_COMPUTER_USAGE_TIME_LIMIT_DIALOG };
@@ -35,8 +37,6 @@ public:
 	CEdit m_Edit_Time;
 	CEdit m_Edit_PW;
 
-	// Point Variable
-	CString m_cPassWord;
 	CString m_cTime;
 
 };
