@@ -39,6 +39,9 @@
     <ClInclude Include="CloseCheckDlg.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="TimeDlg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="06_Computer_Usage_Time_Limit.cpp">
@@ -54,6 +57,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CloseCheckDlg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeDlg.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

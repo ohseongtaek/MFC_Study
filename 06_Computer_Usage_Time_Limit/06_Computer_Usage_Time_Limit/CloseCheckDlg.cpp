@@ -38,9 +38,8 @@ BOOL CloseCheckDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 	SetWindowText(_T("비밀번호 입력"));
 
-	// 비밀번호 입력 후 상태 
-	m_bStatus = FALSE;
-	
+	m_edClosePW.SetFocus();
+
 	GuideMsg2(_T("시작 시 입력한 비밀번호를 입력해주세요. \r\n"), RGB(0, 0, 0));
 	GuideMsg2(_T("문의: post4204@naver.com \r\n"), RGB(0, 0, 255));
 
@@ -105,6 +104,9 @@ void CloseCheckDlg::OnBnClickedButtonClose()
 		{
 			MessageBox(_T("종료 실패 \r\n 다시 종료해주세요"), _T("Error"), MB_ICONERROR);
 		}
+
+		// time 다이얼로그 종료 
+		::SendMessage(theApp.m_hWndTime, WM_CLOSE, NULL, NULL);
 		
 		// 메인 윈도우와 함께 프로그램전체 종료 
 		::SendMessage(theApp.m_hWndMain, WM_CLOSE, NULL, NULL);

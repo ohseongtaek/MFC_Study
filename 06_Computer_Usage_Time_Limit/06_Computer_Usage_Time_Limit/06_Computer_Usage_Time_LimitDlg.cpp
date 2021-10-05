@@ -28,6 +28,7 @@ void CMy06ComputerUsageTimeLimitDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_RICHEDITGUIDEMESSAGE, m_Rich_GuideMessage);
 	DDX_Control(pDX, IDC_EDIT1, m_Edit_Time);
 	DDX_Control(pDX, IDC_EDIT2, m_Edit_PW);
+	DDX_Control(pDX, IDOK, m_btStart);
 }
 
 BEGIN_MESSAGE_MAP(CMy06ComputerUsageTimeLimitDlg, CDialogEx)
@@ -49,7 +50,6 @@ BOOL CMy06ComputerUsageTimeLimitDlg::OnInitDialog()
 
 	SetIcon(m_hIcon, TRUE);		// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, TRUE);		// 작은 아이콘을 설정합니다.
-
 
 	//seongtaek10.oh 시간 다이얼로그만 구현하면 끝 
 	SetWindowText(_T("Computer Time Limit made by seongtaekoh"));
@@ -78,17 +78,10 @@ BOOL CMy06ComputerUsageTimeLimitDlg::OnInitDialog()
 	GuideMsg(_T("2.패스워드: 사용중에 프로그램을 종료하기 위함 입니다.\r\n"), RGB(0, 0, 0));
 	GuideMsg(_T("※컴퓨터 이용시간 초과 시 바로 종료됩니다.\r\n"), RGB(255, 0, 0));
 	GuideMsg(_T("문의: post4204@naver.com \r\n"), RGB(0, 0, 255));
+	m_Rich_GuideMessage.SetReadOnly(TRUE);
 	// 안내 메시지 출력 End 
 
-
 	theApp.m_hWndMain = GetSafeHwnd();
-
-	//BOOL bRet = ::Shell_NotifyIcon(NIM_DELETE, &nid);
-	//if (!bRet)
-	//{
-	//	MessageBox(_T("종료 실패 \r\n 다시 종료해주세요"), _T("Error"), MB_ICONERROR);
-	//}
-	//::SendMessage(this->m_hWnd, WM_CLOSE, NULL, NULL);
 
 	ShowWindow(SW_SHOW);
 
@@ -132,7 +125,6 @@ void CMy06ComputerUsageTimeLimitDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	{
 		AfxGetApp()->m_pMainWnd->ShowWindow(SW_HIDE);
 	}
-	//CDialogEx::OnSysCommand(nID, lParam);
 }
 
 LRESULT CMy06ComputerUsageTimeLimitDlg::OnTrayAction(WPARAM wParam, LPARAM lParam)
@@ -151,7 +143,7 @@ LRESULT CMy06ComputerUsageTimeLimitDlg::OnTrayAction(WPARAM wParam, LPARAM lPara
 		}
 		case WM_LBUTTONDBLCLK:
 		{
-			AfxGetApp()->m_pMainWnd->ShowWindow(SW_SHOW);
+			openShell();
 			break;
 		}
 	}
@@ -167,7 +159,7 @@ void CMy06ComputerUsageTimeLimitDlg::OnShellClose()
 
 void CMy06ComputerUsageTimeLimitDlg::OnShellOpen()
 {
-	AfxGetApp()->m_pMainWnd->ShowWindow(SW_SHOW);
+	openShell();
 }
 
 void CMy06ComputerUsageTimeLimitDlg::GuideMsg(LPCTSTR strText, COLORREF TextColor)
@@ -211,6 +203,9 @@ void CMy06ComputerUsageTimeLimitDlg::OnBnClickedOk()
 	{
 		//::AfxMessageBox(_T("시간과 패스워드를 입력해주세요"));
 		MessageBox(_T("시간과 패스워드를 입력해주세요"), _T("Info"), MB_ICONASTERISK);
+
+		//로그인 상태 체크 
+		theApp.m_bLogin = FALSE;
 		return;
 	}
 
@@ -219,9 +214,10 @@ void CMy06ComputerUsageTimeLimitDlg::OnBnClickedOk()
 	theApp.m_cstrInputPASS = strMD5pw.c_str();
 
 	// 시간값 계산하기 
-	CString cstrTime = CTime::GetCurrentTime().Format("%H%M");
-	INT nTempMin  = _ttoi(cstrTime.Right(2));
-	INT nTempHour = _ttoi(cstrTime.Left(2));
+	CString cstrTimeHour = CTime::GetCurrentTime().Format("%H");
+	CString cstrTimeMin	 = CTime::GetCurrentTime().Format("%M");
+	INT nTempMin  = _ttoi(cstrTimeMin);
+	INT nTempHour = _ttoi(cstrTimeHour);
 
 	INT nTempTotalMin = nTempMin + nInputTime;
 	INT nUpHour = nTempTotalMin / 60;
@@ -239,11 +235,92 @@ void CMy06ComputerUsageTimeLimitDlg::OnBnClickedOk()
 	}
 
 	char szToStr[MAX_PATH] = { 0, };
-	StringCbPrintfA(szToStr, sizeof(szToStr), "%d시 %d분", nHour, nMin);
+	StringCbPrintfA(szToStr, sizeof(szToStr), "%d%d", nHour, nMin);
 	std::string strTime(szToStr);
-	m_cTime = strTime.c_str();
+	theApp.m_EndTime = strTime.c_str();
+	
+	m_EndHour.Format(_T("%d"), nHour);
+	m_EndMin.Format(_T("%d"), nMin);
+	
+	//로그인 상태 체크
+	theApp.m_bLogin = TRUE;
 
-	// 새로운 다이얼로그 생성 해야함 (시간계산해주는것)
-
+	//시작 시점 
 	AfxGetApp()->m_pMainWnd->ShowWindow(SW_HIDE);
+	
+	// 새로운 다이얼로그 생성 해야함 (시간계산해주는것)
+	m_TimeDlg = new TimeDlg;
+	m_TimeDlg->Create(IDD_DIALOG_TIME, this);
+	m_TimeDlg->ShowWindow(SW_SHOW);
+
+	// thread 시작 
+	HANDLE hLogThread = (HANDLE)_beginthread(fnTimeThread, 0, (void*)this);
+	
+}
+
+void CMy06ComputerUsageTimeLimitDlg::fnTimeThread(void* tp)
+{
+	//::AfxMessageBox(_T("seongtaek"));
+	CMy06ComputerUsageTimeLimitDlg* pTimeCls = (CMy06ComputerUsageTimeLimitDlg*)tp;
+	
+	CString cstrShowTimeHour = 0;
+	CString cstrShowTimeMin = 0;
+	INT nTempMin = 0;
+	INT nTempHour = 0;
+	BOOL bUpdate = TRUE;
+
+	while (1)
+	{
+		cstrShowTimeHour = CTime::GetCurrentTime().Format("%H");
+		cstrShowTimeMin  = CTime::GetCurrentTime().Format("%M");
+
+		if (nTempHour >= _ttoi(pTimeCls->m_EndHour) && nTempMin >= _ttoi(pTimeCls->m_EndMin))
+		{
+			bUpdate = FALSE;
+		}
+		
+		nTempHour = _ttoi(cstrShowTimeHour);
+		nTempMin = _ttoi(cstrShowTimeMin);
+
+		if (bUpdate)
+		{
+			CString cstrText;
+			cstrText.Format(_T("현재시간 : %d 시 %d 분"), nTempHour, nTempMin);
+			pTimeCls->m_TimeDlg->m_ShowTime.SetWindowText(cstrText);
+		}
+		else
+		{
+			//seongtaek10.oh 
+			//강제종료 커맨드 입력하기 
+			//메뉴에서 시간창 open 확인하기 
+			break;
+		}
+		Sleep(10);
+	}
+}
+
+void CMy06ComputerUsageTimeLimitDlg::openShell()
+{
+	// 로그인 상태에 따라 화면 변화 
+	if (theApp.m_bLogin == TRUE)
+	{
+		// 가이드 메시지 변경 
+		m_Rich_GuideMessage.SetSel(0, -1);
+		m_Rich_GuideMessage.Clear();
+		m_Rich_GuideMessage.SetWindowText(_T(""));
+
+		GuideMsg(_T("이미 설정된 시간이 있습니다. \r\n"), RGB(255, 0, 0));
+		GuideMsg(_T("재설정 시 프로그램 종료 후 다시 시작해주세요. \r\n"), RGB(0, 0, 0));
+		GuideMsg(_T("문의: post4204@naver.com \r\n"), RGB(0, 0, 255));
+
+		// 버튼 동작 변경 
+		m_Edit_Time.SetReadOnly(TRUE);
+		m_Edit_PW.SetReadOnly(TRUE);
+		m_btStart.EnableWindow(FALSE);
+		AfxGetApp()->m_pMainWnd->ShowWindow(SW_SHOW);
+	}
+	else
+	{
+		AfxGetApp()->m_pMainWnd->ShowWindow(SW_SHOW);
+	}
 }

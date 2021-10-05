@@ -6,6 +6,7 @@
 #define IDR_MAINFRAME                   128
 #define IDR_MENU1                       130
 #define IDD_DIALOG_CLOSE                131
+#define IDD_DIALOG_TIME                 133
 #define IDC_MFCSHELLLIST1               1002
 #define IDC_RICHEDITGUIDEMESSAGE        1004
 #define IDC_EDIT1                       1005
@@ -14,6 +15,9 @@
 #define IDC_BUTTON_CLOSE                1008
 #define IDC_STATIC_CLOSE_PW             1009
 #define IDC_EDIT_CLOSE_PW               1010
+#define IDC_STATIC_END                  1012
+#define IDC_STATIC_SHOW                 1013
+#define IDC_RICHEDIT_GUIDE_TIME         1014
 #define ID_Menu                         32771
 #define ID_32772                        32772
 #define ID_32773                        32773
@@ -24,9 +28,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_RESOURCE_VALUE        135
 #define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1011
+#define _APS_NEXT_CONTROL_VALUE         1015
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

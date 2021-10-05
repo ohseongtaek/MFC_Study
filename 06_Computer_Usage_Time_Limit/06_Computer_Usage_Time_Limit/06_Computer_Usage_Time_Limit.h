@@ -16,8 +16,10 @@ public:
 	virtual BOOL InitInstance();
 	CString m_cstrInputPASS;
 	HWND m_hWndMain;
+	HWND m_hWndTime;
 	std::string strToMD5(CString pw);
-
+	BOOL m_bLogin;
+	CString m_EndTime;
 
 	DECLARE_MESSAGE_MAP()
 };

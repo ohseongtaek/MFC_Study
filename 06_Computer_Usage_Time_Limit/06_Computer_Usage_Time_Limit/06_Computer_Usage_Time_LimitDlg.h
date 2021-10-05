@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "md5.h"
 #include "CloseCheckDlg.h"
+#include "TimeDlg.h"
 #define WM_TRAY_NOTIFYCATION WM_APP + 10
 
 class CMy06ComputerUsageTimeLimitDlg : public CDialogEx
@@ -8,6 +9,7 @@ class CMy06ComputerUsageTimeLimitDlg : public CDialogEx
 public:
 	CMy06ComputerUsageTimeLimitDlg(CWnd* pParent = nullptr);	
 	CloseCheckDlg* m_CloseCheckDlg;
+	TimeDlg* m_TimeDlg;
 
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_MY06_COMPUTER_USAGE_TIME_LIMIT_DIALOG };
@@ -28,15 +30,21 @@ public:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnBnClickedOk();
 
+	static void fnTimeThread(void* tp);
+
 	LRESULT OnTrayAction(WPARAM wParam, LPARAM lParam);
 	void OnShellClose();
 	void OnShellOpen();
 	void GuideMsg(LPCTSTR strText, COLORREF TextColor);
-	
+
+	void openShell();
+
 	CRichEditCtrl m_Rich_GuideMessage;
+	CButton m_btStart;
 	CEdit m_Edit_Time;
 	CEdit m_Edit_PW;
 
 	CString m_cTime;
-
+	CString m_EndHour;
+	CString m_EndMin;
 };
