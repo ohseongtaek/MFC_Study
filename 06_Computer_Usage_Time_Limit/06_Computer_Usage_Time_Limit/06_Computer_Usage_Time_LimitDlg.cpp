@@ -38,6 +38,7 @@ BEGIN_MESSAGE_MAP(CMy06ComputerUsageTimeLimitDlg, CDialogEx)
 	ON_MESSAGE(WM_TRAY_NOTIFYCATION, &CMy06ComputerUsageTimeLimitDlg::OnTrayAction)
 	ON_COMMAND(Shell_Close, &CMy06ComputerUsageTimeLimitDlg::OnShellClose)
 	ON_COMMAND(Shell_Open, &CMy06ComputerUsageTimeLimitDlg::OnShellOpen)
+	ON_COMMAND(Shell_TimeCheck, &CMy06ComputerUsageTimeLimitDlg::OnShellTime)
 	ON_BN_CLICKED(IDOK, &CMy06ComputerUsageTimeLimitDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
@@ -74,8 +75,8 @@ BOOL CMy06ComputerUsageTimeLimitDlg::OnInitDialog()
 
 	// 안내 메시지 출력 Start
 	//m_Rich_GuideMessage.MoveWindow(12, 270, 400, 65, FALSE);
-	GuideMsg(_T("1.시간입력: 사용시간은 분 단위 입니다. ex)60\r\n"), RGB(0, 0, 0));
-	GuideMsg(_T("2.패스워드: 사용중에 프로그램을 종료하기 위함 입니다.\r\n"), RGB(0, 0, 0));
+	GuideMsg(_T("1.시간입력(분) : 사용시간은 분 단위 입니다. ex)60\r\n"), RGB(0, 0, 0));
+	GuideMsg(_T("2.패스워드     : 사용중에 프로그램을 종료하기 위함 입니다.\r\n"), RGB(0, 0, 0));
 	GuideMsg(_T("※컴퓨터 이용시간 초과 시 바로 종료됩니다.\r\n"), RGB(255, 0, 0));
 	GuideMsg(_T("문의: post4204@naver.com \r\n"), RGB(0, 0, 255));
 	m_Rich_GuideMessage.SetReadOnly(TRUE);
@@ -160,6 +161,13 @@ void CMy06ComputerUsageTimeLimitDlg::OnShellClose()
 void CMy06ComputerUsageTimeLimitDlg::OnShellOpen()
 {
 	openShell();
+}
+
+void CMy06ComputerUsageTimeLimitDlg::OnShellTime()
+{
+	m_TimeDlg = new TimeDlg;
+	m_TimeDlg->Create(IDD_DIALOG_TIME, this);
+	m_TimeDlg->ShowWindow(SW_SHOW);
 }
 
 void CMy06ComputerUsageTimeLimitDlg::GuideMsg(LPCTSTR strText, COLORREF TextColor)
@@ -262,15 +270,18 @@ void CMy06ComputerUsageTimeLimitDlg::fnTimeThread(void* tp)
 {
 	//::AfxMessageBox(_T("seongtaek"));
 	CMy06ComputerUsageTimeLimitDlg* pTimeCls = (CMy06ComputerUsageTimeLimitDlg*)tp;
+	TimeDlg* pTimeCls2 = (TimeDlg*)tp;
 	
 	CString cstrShowTimeHour = 0;
 	CString cstrShowTimeMin = 0;
 	INT nTempMin = 0;
 	INT nTempHour = 0;
-	BOOL bUpdate = TRUE;
 
 	while (1)
 	{
+		BOOL bUpdate = TRUE;
+		BOOL bUpdate_TIME = TRUE;
+
 		cstrShowTimeHour = CTime::GetCurrentTime().Format("%H");
 		cstrShowTimeMin  = CTime::GetCurrentTime().Format("%M");
 
@@ -278,11 +289,16 @@ void CMy06ComputerUsageTimeLimitDlg::fnTimeThread(void* tp)
 		{
 			bUpdate = FALSE;
 		}
+
+		if (nTempHour == _ttoi(cstrShowTimeHour) && nTempMin == _ttoi(cstrShowTimeMin))
+		{
+			bUpdate_TIME = FALSE;
+		}
 		
 		nTempHour = _ttoi(cstrShowTimeHour);
 		nTempMin = _ttoi(cstrShowTimeMin);
 
-		if (bUpdate)
+		if (bUpdate && bUpdate_TIME)
 		{
 			CString cstrText;
 			cstrText.Format(_T("현재시간 : %d 시 %d 분"), nTempHour, nTempMin);
@@ -290,10 +306,18 @@ void CMy06ComputerUsageTimeLimitDlg::fnTimeThread(void* tp)
 		}
 		else
 		{
-			//seongtaek10.oh 
-			//강제종료 커맨드 입력하기 
-			//메뉴에서 시간창 open 확인하기 
-			break;
+			if (!bUpdate)
+			{
+				::AfxMessageBox(_T("컴퓨터를 종료합니다 (이 타이밍에 종료하면됨)"));
+				//seongtaek10.oh 
+				//강제종료 커맨드 입력하기 
+				//메뉴에서 시간창 open 확인하기 
+				break;
+			}
+			else if (bUpdate_TIME)
+			{
+				// do not anything
+			}
 		}
 		Sleep(10);
 	}

@@ -22,10 +22,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	// seongtaek10.oh 
-	void GuideMsg3(LPCTSTR strText, COLORREF TextColor);
 
 	CStatic m_ShowTime;
 	CStatic m_EndTime;
-	CRichEditCtrl m_rcGuide3;
 };

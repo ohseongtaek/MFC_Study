@@ -1,0 +1,17 @@
+﻿  pch.cpp
+  06_Computer_Usage_Time_Limit.cpp
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit.cpp(90,71): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit.cpp(95,3): error C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  06_Computer_Usage_Time_LimitDlg.cpp
+  CloseCheckDlg.cpp
+  md5.cpp
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\md5.cpp(61,1): warning C4005: 'BYTE_ORDER': 매크로 재정의
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\md5.cpp(59): message : 'BYTE_ORDER'의 이전 정의를 참조하십시오.
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\md5.cpp(231,1): warning C4005: 'SET': 매크로 재정의
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\md5.cpp(205): message : 'SET'의 이전 정의를 참조하십시오.
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\md5.cpp(257,1): warning C4005: 'SET': 매크로 재정의
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\md5.cpp(231): message : 'SET'의 이전 정의를 참조하십시오.
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\md5.cpp(283,1): warning C4005: 'SET': 매크로 재정의
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\md5.cpp(257): message : 'SET'의 이전 정의를 참조하십시오.
+D:\Git\MFC_Study\06_Computer_Usage_Time_Limit\06_Computer_Usage_Time_Limit\md5.cpp(382,1): fatal error C1010: 미리 컴파일된 헤더를 찾는 동안 예기치 않은 파일의 끝이 나타났습니다. '#include "pch.h"'을(를) 소스에 추가하시겠습니까?
+  TimeDlg.cpp

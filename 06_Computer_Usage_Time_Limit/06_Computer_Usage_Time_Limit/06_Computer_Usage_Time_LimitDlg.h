@@ -35,6 +35,7 @@ public:
 	LRESULT OnTrayAction(WPARAM wParam, LPARAM lParam);
 	void OnShellClose();
 	void OnShellOpen();
+	void OnShellTime();
 	void GuideMsg(LPCTSTR strText, COLORREF TextColor);
 
 	void openShell();
