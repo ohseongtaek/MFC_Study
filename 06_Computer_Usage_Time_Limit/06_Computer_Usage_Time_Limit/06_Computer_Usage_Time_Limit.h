@@ -20,6 +20,7 @@ public:
 	std::string strToMD5(CString pw);
 	BOOL m_bLogin;
 	CString m_EndTime;
+	BOOL m_bThreadClose;
 
 	DECLARE_MESSAGE_MAP()
 };

@@ -29,6 +29,7 @@ void TimeDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(TimeDlg, CDialogEx)
+	ON_WM_NCDESTROY()
 END_MESSAGE_MAP()
 
 BOOL TimeDlg::OnInitDialog()
@@ -65,4 +66,10 @@ BOOL TimeDlg::OnInitDialog()
 	m_EndTime.SetWindowText(cstrEndTime);
 
 	return TRUE;
+}
+
+void TimeDlg::PostNcDestroy()
+{
+	CDialog::PostNcDestroy();
+	delete this;
 }

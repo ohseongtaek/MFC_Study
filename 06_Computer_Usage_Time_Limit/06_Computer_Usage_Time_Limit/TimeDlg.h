@@ -25,4 +25,7 @@ public:
 
 	CStatic m_ShowTime;
 	CStatic m_EndTime;
+
+	afx_msg void PostNcDestroy();
+
 };

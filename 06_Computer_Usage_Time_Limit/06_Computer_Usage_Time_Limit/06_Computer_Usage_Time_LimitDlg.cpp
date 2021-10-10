@@ -1,4 +1,12 @@
-﻿#include "pch.h"
+﻿
+// Memory leak check code 
+//#define _CRTDBG_MAP_ALLOC
+//#include <crtdbg.h>
+//#define DEBUG_NEW new(_NORMAL_BLOCK, THIS_FILE, __LINE__ )
+
+
+
+#include "pch.h"
 #include "framework.h"
 #include "06_Computer_Usage_Time_Limit.h"
 #include "06_Computer_Usage_Time_LimitDlg.h"
@@ -40,6 +48,7 @@ BEGIN_MESSAGE_MAP(CMy06ComputerUsageTimeLimitDlg, CDialogEx)
 	ON_COMMAND(Shell_Open, &CMy06ComputerUsageTimeLimitDlg::OnShellOpen)
 	ON_COMMAND(Shell_TimeCheck, &CMy06ComputerUsageTimeLimitDlg::OnShellTime)
 	ON_BN_CLICKED(IDOK, &CMy06ComputerUsageTimeLimitDlg::OnBnClickedOk)
+	ON_COMMAND(IDCANCEL, &CMy06ComputerUsageTimeLimitDlg::OnCancelOverride)
 END_MESSAGE_MAP()
 
 
@@ -47,6 +56,7 @@ END_MESSAGE_MAP()
 
 BOOL CMy06ComputerUsageTimeLimitDlg::OnInitDialog()
 {
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	CDialogEx::OnInitDialog();
 
 	SetIcon(m_hIcon, TRUE);		// 큰 아이콘을 설정합니다.
@@ -261,6 +271,8 @@ void CMy06ComputerUsageTimeLimitDlg::OnBnClickedOk()
 	m_TimeDlg->Create(IDD_DIALOG_TIME, this);
 	m_TimeDlg->ShowWindow(SW_SHOW);
 
+	//delete 해줘야함...
+
 	// thread 시작 
 	HANDLE hLogThread = (HANDLE)_beginthread(fnTimeThread, 0, (void*)this);
 	
@@ -308,10 +320,10 @@ void CMy06ComputerUsageTimeLimitDlg::fnTimeThread(void* tp)
 		{
 			if (!bUpdate)
 			{
-				::AfxMessageBox(_T("컴퓨터를 종료합니다 (이 타이밍에 종료하면됨)"));
-				//seongtaek10.oh 
-				//강제종료 커맨드 입력하기 
-				//메뉴에서 시간창 open 확인하기 
+				theApp.m_bThreadClose = TRUE;
+				::AfxMessageBox(_T("컴퓨터를 5초 뒤에 종료합니다 \n "));
+				system("shutdown -s -t 5");
+				::SendMessage(theApp.m_hWndMain, WM_CLOSE, NULL, NULL);
 				break;
 			}
 			else if (bUpdate_TIME)
@@ -319,6 +331,12 @@ void CMy06ComputerUsageTimeLimitDlg::fnTimeThread(void* tp)
 				// do not anything
 			}
 		}
+
+		if (theApp.m_bThreadClose)
+		{
+			break;
+		}
+
 		Sleep(10);
 	}
 }
@@ -346,5 +364,18 @@ void CMy06ComputerUsageTimeLimitDlg::openShell()
 	else
 	{
 		AfxGetApp()->m_pMainWnd->ShowWindow(SW_SHOW);
+	}
+}
+
+void CMy06ComputerUsageTimeLimitDlg::OnCancelOverride()
+{
+	if (theApp.m_bThreadClose == TRUE)
+	{
+		EndDialog(IDCANCEL);
+	}
+
+	if (((GetKeyState(VK_ESCAPE) & 0x8000) == 0))
+	{
+		AfxGetApp()->m_pMainWnd->ShowWindow(SW_HIDE);
 	}
 }

@@ -24,6 +24,7 @@ public:
 	void GuideMsg2(LPCTSTR strText, COLORREF TextColor);
 	CRichEditCtrl m_reCloseMsg;
 	CEdit m_edClosePW;
-	
+
+	afx_msg void PostNcDestroy();
 	afx_msg void OnBnClickedButtonClose();
 };

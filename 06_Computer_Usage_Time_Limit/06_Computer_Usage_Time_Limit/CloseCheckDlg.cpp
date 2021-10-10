@@ -30,7 +30,7 @@ void CloseCheckDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CloseCheckDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE, &CloseCheckDlg::OnBnClickedButtonClose)
-	//ON_WM_PAINT()
+	ON_WM_NCDESTROY()
 END_MESSAGE_MAP()
 
 BOOL CloseCheckDlg::OnInitDialog()
@@ -88,7 +88,7 @@ void CloseCheckDlg::OnBnClickedButtonClose()
 	if (!theApp.m_cstrInputPASS.Compare(FinalDiff))
 	{
 		MessageBox(_T("성공적으로 종료하겠습니다."), _T("Info"), MB_ICONASTERISK);
-
+		theApp.m_bThreadClose = TRUE;
 		// 입력창 다이얼로그 종료 
 		::SendMessage(this->m_hWnd, WM_CLOSE, NULL, NULL);
 
@@ -110,9 +110,17 @@ void CloseCheckDlg::OnBnClickedButtonClose()
 		
 		// 메인 윈도우와 함께 프로그램전체 종료 
 		::SendMessage(theApp.m_hWndMain, WM_CLOSE, NULL, NULL);
+		
 	}
 	else
 	{
 		MessageBox(_T("비밀번호가 틀렸습니다."), _T("Error"), MB_ICONERROR);
 	}
 }
+
+void CloseCheckDlg::PostNcDestroy()
+{
+	CDialog::PostNcDestroy();
+	delete this;
+}
+

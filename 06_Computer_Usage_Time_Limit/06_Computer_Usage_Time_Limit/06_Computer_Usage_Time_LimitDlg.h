@@ -29,6 +29,7 @@ protected:
 public:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnBnClickedOk();
+	afx_msg void OnCancelOverride();
 
 	static void fnTimeThread(void* tp);
 
